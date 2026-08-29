@@ -132,6 +132,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     
     # Enable intrinsics for xorstr
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -msse4.2")
+
+    # MinGW/GCC: MSVC-oriented sources need permissive template parsing
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpermissive -Wno-template-body -Wno-error")
 endif()
 
 # Print compiler flags

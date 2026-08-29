@@ -123,7 +123,7 @@ void EnumManager::InitInternal()
 				const int32 PropertySize = Property.GetSize();
 				Info.UnderlyingTypeSize = std::max<uint8>(Info.UnderlyingTypeSize, static_cast<uint8>(PropertySize));
 
-				if (UnderlayingProperty && UnderlayingProperty != Property)
+				if (UnderlayingProperty && UnderlayingProperty.GetAddress() != Property.GetAddress())
 				{
 					const int32 UnderlayingSize = UnderlayingProperty.GetSize();
 					Info.UnderlyingTypeSize = std::max<uint8>(Info.UnderlyingTypeSize, static_cast<uint8>(UnderlayingSize));

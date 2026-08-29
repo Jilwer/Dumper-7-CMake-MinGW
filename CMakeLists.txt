@@ -12,6 +12,9 @@ endif()
 
 project(Dumper-7 LANGUAGES CXX C)
 
+# CMake 3.28+ defaults to module scanning; this project does not use C++ modules.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 include(${CMAKE_SOURCE_DIR}/cmake/Common.cmake)
 
 # Source files - automatic search for all source files
@@ -80,4 +83,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS ON
+    PREFIX ""
+    OUTPUT_NAME "Dumper-7"
 ) 

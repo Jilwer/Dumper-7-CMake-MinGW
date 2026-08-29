@@ -1,5 +1,8 @@
 #include <vector>
 #include <random>
+#include <format>
+#include <functional>
+#include <iostream>
 
 #include "OffsetFinder/OffsetFinder.h"
 #include "Unreal/ObjectArray.h"

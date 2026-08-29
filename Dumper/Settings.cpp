@@ -1,7 +1,8 @@
 #include "Settings.h"
 
 #include <algorithm>
-#include <Windows.h>
+#include <format>
+#include <windows.h>
 #include <filesystem>
 #include <string>
 
