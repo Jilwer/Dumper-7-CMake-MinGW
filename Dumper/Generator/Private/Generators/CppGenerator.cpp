@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <vector>
 #include <array>
+#include <limits>
 
 #include "Unreal/ObjectArray.h"
 #include "Generators/CppGenerator.h"
@@ -819,13 +820,77 @@ void CppGenerator::GenerateEnum(const EnumWrapper& Enum, StreamType& StructFile)
 
 	CollisionInfoIterator EnumValueIterator = Enum.GetMembers();
 
+	const uint8 UnderlyingSize = Enum.GetUnderlyingTypeSize();
+	const bool bSigned = Enum.IsUnderlyingTypeSigned();
+
+	int64 SignedMin = 0;
+	int64 SignedMax = 0;
+	uint64 UnsignedMax = 0;
+
+	if (UnderlyingSize >= 8)
+	{
+		SignedMin = std::numeric_limits<int64>::min();
+		SignedMax = std::numeric_limits<int64>::max();
+		UnsignedMax = ~uint64{ 0 };
+	}
+	else
+	{
+		const uint64 HalfRange = uint64{ 1 } << (UnderlyingSize * 8 - 1);
+		SignedMin = -static_cast<int64>(HalfRange);
+		SignedMax = static_cast<int64>(HalfRange - 1);
+		UnsignedMax = (uint64{ 1 } << (UnderlyingSize * 8)) - 1;
+	}
+
+	auto WrapUnsigned = [UnderlyingSize](int64 Raw) -> uint64
+	{
+		switch (UnderlyingSize)
+		{
+		case 1:  return static_cast<uint8>(Raw);
+		case 2:  return static_cast<uint16>(Raw);
+		case 4:  return static_cast<uint32>(Raw);
+		default: return static_cast<uint64>(Raw);
+		}
+	};
+
 	int32 NumValues = 0x0;
 	std::string MemberString;
 
 	for (const EnumCollisionInfo& Info : EnumValueIterator)
 	{
+		const int64 Raw = Info.GetValue();
+		const std::string Name = Info.GetUniqueName();
+
+		std::string ValueText;
+
+		if (bSigned)
+		{
+			if (Raw < SignedMin || Raw > SignedMax)
+			{
+				/* Out-of-range *_MAX (or anything else) — omit rather than illegal enumerator */
+				continue;
+			}
+			ValueText = std::to_string(Raw);
+		}
+		else
+		{
+			if (Raw < 0)
+			{
+				/* INDEX_NONE / -1 → e.g. 255 for uint8 */
+				ValueText = std::to_string(WrapUnsigned(Raw));
+			}
+			else if (static_cast<uint64>(Raw) > UnsignedMax)
+			{
+				/* Typical: VMI_MAX = 256 on a uint8 enum — omit so GCC accepts the enum */
+				continue;
+			}
+			else
+			{
+				ValueText = std::to_string(static_cast<uint64>(Raw));
+			}
+		}
+
 		NumValues++;
-		MemberString += std::format("\t{:{}} = {},\n", Info.GetUniqueName(), 40, Info.GetValue());
+		MemberString += std::format("\t{:{}} = {},\n", Name, 40, ValueText);
 	}
 
 	if (!MemberString.empty()) [[likely]]

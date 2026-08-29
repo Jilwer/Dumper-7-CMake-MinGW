@@ -14,14 +14,14 @@ private:
 
 private:
 	HashStringTableIndex MemberName;
-	uint64 MemberValue;
+	int64 MemberValue;
 
 	uint8 CollisionCount = 0;
 
 public:
 	std::string GetUniqueName() const;
 	std::string GetRawName() const;
-	uint64 GetValue() const;
+	int64 GetValue() const;
 
 	uint8 GetCollisionCount() const;
 };

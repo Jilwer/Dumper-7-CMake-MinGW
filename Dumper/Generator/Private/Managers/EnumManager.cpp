@@ -42,7 +42,7 @@ std::string EnumCollisionInfo::GetRawName() const
 	return EnumManager::GetValueName(*this).GetName();
 }
 
-uint64 EnumCollisionInfo::GetValue() const
+int64 EnumCollisionInfo::GetValue() const
 {
 	return MemberValue;
 }
@@ -148,8 +148,14 @@ void EnumManager::InitInternal()
 					
 				std::wstring NameWitPrefix = Name.ToWString();
 
-				if (!NameWitPrefix.ends_with(L"_MAX"))
-					EnumMaxValue = std::max<uint64>(EnumMaxValue, Value);
+				/*
+				 * Size from enumerator values:
+				 * - Skip *_MAX (often count = last+1, e.g. 256 for a byte enum).
+				 * - Skip negatives (INDEX_NONE / -1). Promoting those via uint64(-1)
+				 *   blew size to 8 and broke layout vs reflected byte properties.
+				 */
+				if (!NameWitPrefix.ends_with(L"_MAX") && Value >= 0)
+					EnumMaxValue = std::max<uint64>(EnumMaxValue, static_cast<uint64>(Value));
 
 				auto [NameIndex, bWasInserted] = UniqueEnumValueNames.FindOrAdd(MakeNameValid(NameWitPrefix.substr(NameWitPrefix.find_last_of(L"::") + 1)));
 
