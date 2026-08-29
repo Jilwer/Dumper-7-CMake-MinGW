@@ -85,4 +85,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     WINDOWS_EXPORT_ALL_SYMBOLS ON
     PREFIX ""
     OUTPUT_NAME "Dumper-7"
-) 
+)
+
+# Statically link MinGW/llvm-mingw runtimes so Proton does not need companion DLLs.
+# Prefer full -static like the known-good llvm-mingw build (smaller + cleaner TLS/CRT).
+if(MINGW OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        target_link_options(${PROJECT_NAME} PRIVATE
+            -static
+            -static-libgcc
+            -static-libstdc++
+        )
+    endif()
+endif()
