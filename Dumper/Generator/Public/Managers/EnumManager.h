@@ -42,12 +42,6 @@ private:
 	/* Whether the enum is signed or not (int8, int16, int32, int64) */
 	bool bIsSigned = false;
 
-	/* Wether an occurence of this enum was found, if not guess the type by the enums' max value */
-	bool bWasInstanceFound = false;
-
-	/* Whether this enums' size was initialized before */
-	bool bWasEnumSizeInitialized = false;
-
 	/* Infos on all members and if there are any collisions between member-names */
 	std::vector<EnumCollisionInfo> MemberInfos;
 };

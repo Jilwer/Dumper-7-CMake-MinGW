@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 #include <array>
 
@@ -1284,7 +1285,7 @@ void CppGenerator::GeneratePropertyFixupFile(StreamType& PropertyFixup)
 
 	for (const auto& [Name, Property] : UnknownProperties)
 	{
-		PropertyFixup << std::format("\nclass alignas(0x{:02X}) {}\n{{\n\tunsigned __int8 Pad[0x{:X}];\n}};\n",Property.GetAlignment(), Name, Property.GetSize());
+		PropertyFixup << std::format("\nclass alignas(0x{:02X}) {}\n{{\n\tunsigned char Pad[0x{:X}];\n}};\n",Property.GetAlignment(), Name, Property.GetSize());
 	}
 
 	WriteFileEnd(PropertyFixup, EFileType::PropertyFixup);
@@ -3471,6 +3472,9 @@ void CppGenerator::GenerateBasicFiles(StreamType& BasicHpp, StreamType& BasicCpp
 	const std::string CustomIncludes = std::format(R"(#define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 {}
+#include <cstdint>
+#include <cstring>
+#include <cmath>
 #include <string>
 #include <functional>
 #include <type_traits>
@@ -3478,7 +3482,7 @@ void CppGenerator::GenerateBasicFiles(StreamType& BasicHpp, StreamType& BasicCpp
 )", (!Settings::Config::SDKNamespaceName.empty() ? SDKMacroDefinitions : ""));
 
 	WriteFileHead(BasicHpp, nullptr, EFileType::BasicHpp, "Basic file containing structs required by the SDK", CustomIncludes);
-	WriteFileHead(BasicCpp, nullptr, EFileType::BasicCpp, "Basic file containing function-implementations from Basic.hpp", "#include <Windows.h>");
+	WriteFileHead(BasicCpp, nullptr, EFileType::BasicCpp, "Basic file containing function-implementations from Basic.hpp", "#include <windows.h>");
 
 
 	/* use namespace of UnrealContainers */
@@ -3512,12 +3516,12 @@ namespace Offsets
 	constexpr int32 ProcessEvent      = 0x{:08X};
 	constexpr int32 ProcessEventIdx   = 0x{:08X};
 }}
-)", max(Off::InSDK::ObjArray::GObjects, 0x0),
-	max(Off::InSDK::Name::AppendNameToString, 0x0),
+)", std::max<int32>(Off::InSDK::ObjArray::GObjects, 0x0),
+	std::max<int32>(Off::InSDK::Name::AppendNameToString, 0x0),
 	GetNameEntryFromNameOffsetText,
-	max(Off::InSDK::NameArray::GNames, 0x0),
-	max(Off::InSDK::World::GWorld, 0x0),
-	max(Off::InSDK::ProcessEvent::PEOffset, 0x0),
+	std::max<int32>(Off::InSDK::NameArray::GNames, 0x0),
+	std::max<int32>(Off::InSDK::World::GWorld, 0x0),
+	std::max<int32>(Off::InSDK::ProcessEvent::PEOffset, 0x0),
 	Off::InSDK::ProcessEvent::PEIndex);
 
 
@@ -6000,7 +6004,7 @@ struct std::formatter<SDK_NAMESPACE_NAME ::FText> : std::formatter<std::string>
 void CppGenerator::GenerateUnrealContainers(StreamType& UEContainersHeader)
 {
 	WriteFileHead(UEContainersHeader, nullptr, EFileType::UnrealContainers, 
-		"Container implementations with iterators. See https://github.com/Fischsalat/UnrealContainers", "#include <string>\n#include <stdexcept>\n#include <iostream>\n#include <optional>\n#include \"UtfN.hpp\"");
+		"Container implementations with iterators. See https://github.com/Fischsalat/UnrealContainers", "#include <cstdint>\n#include <cstring>\n#include <string>\n#include <stdexcept>\n#include <iostream>\n#include <optional>\n#include \"UtfN.hpp\"");
 
 
 	UEContainersHeader << R"(
@@ -6224,7 +6228,7 @@ namespace UC
 	class TArray
 	{
 	private:
-		template<typename ArrayElementType>
+		template<typename TAllocatedArrayElementType>
 		friend class TAllocatedArray;
 
 		template<typename SparseArrayElementType>
@@ -8588,7 +8592,7 @@ import sys
 from pathlib import Path
 
 
-TEST_MAIN = r'''#include <Windows.h>
+TEST_MAIN = r'''#include <windows.h>
 #include <iostream>
 
 #include "SDK/Engine_classes.hpp"

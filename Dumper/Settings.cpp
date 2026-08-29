@@ -1,5 +1,6 @@
 #include "Settings.h"
 
+#include <algorithm>
 #include <Windows.h>
 #include <filesystem>
 #include <string>
@@ -176,7 +177,7 @@ void Settings::Config::Load()
 		}
 	}
 	
-	SleepTimeout = max(GetPrivateProfileIntA("Settings", "SleepTimeout", 0, ConfigPath), 0);
+	SleepTimeout = std::max<int>(GetPrivateProfileIntA("Settings", "SleepTimeout", 0, ConfigPath), 0);
 
 	if (SleepTimeout > 0) 
 	{
