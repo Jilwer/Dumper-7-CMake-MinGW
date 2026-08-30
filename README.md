@@ -3,7 +3,7 @@
 
 SDK Generator for all Unreal Engine games. Supported versions are all of UE4 and UE5.
 
-Fork of [Encryqed/Dumper-7](https://github.com/Encryqed/Dumper-7) with CMake + MinGW support. Targeted for linux developers. You can compile on Linux for Windows, and the dumped CppSDK is usable when developing mods on Linux
+Fork of [Encryqed/Dumper-7](https://github.com/Encryqed/Dumper-7) with CMake + MinGW support. Targeted towards development on linux environments. You can compile on Linux for Windows, and the dumped CppSDK is usable when developing mods on Linux
 ## How to use
 
 - Compile the dll in x64-Release (CMake: see [UsingCMake.md](UsingCMake.md); presets include `vs2022`, `mingw`, and `clang`)
