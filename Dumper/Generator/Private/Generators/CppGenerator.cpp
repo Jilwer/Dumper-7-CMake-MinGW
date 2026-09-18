@@ -4943,8 +4943,19 @@ R"({
 	{
 		PredefinedFunction {
 			.CustomComment = "",
+			.ReturnType = "bool", .NameWithParams = "IsValid()", .Body =
+R"({
+	return ObjectIndex > 0;
+})",
+			.bIsStatic = false, .bIsConst = true, .bIsBodyInline = false
+		},
+		PredefinedFunction {
+			.CustomComment = "",
 			.ReturnType = "class UObject*", .NameWithParams = "Get()", .Body =
 R"({
+	if (!IsValid())
+		return nullptr;
+
 	return UObject::GObjects->GetByIndex(ObjectIndex);
 })",
 			.bIsStatic = false, .bIsConst = true, .bIsBodyInline = false
